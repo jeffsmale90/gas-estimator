@@ -20,7 +20,7 @@ class Node {
     }
   }
 
-  requiredGas() {
+  requiredGas(applySixtyFloorths) {
     if (this.children === undefined) {
       return {
         cost: this.cost,
@@ -30,15 +30,15 @@ class Node {
       let totalReq = this.cost;
       let totalCost = this.cost;
       for (const child of this.children) {
-        const { req, cost } = child.requiredGas();
+        const { req, cost } = child.requiredGas(true);
         totalReq = Math.max(totalCost + req, totalReq);
         // we need to carry the _actual_ cost forward, as that is what we spend
         totalCost += cost;
       }
 
-      // this is a hack to _not_ apply sixty_floorths to the "top level" call
-      const req =
-        this.type === "root" ? totalReq : Math.floor(totalReq / SIXTY_FOURTHS);
+      const req = applySixtyFloorths
+        ? Math.floor(totalReq / SIXTY_FOURTHS)
+        : totalReq;
       console.log(`Calculating gas for ${this.type} node`, {
         cost: totalCost,
         req,
