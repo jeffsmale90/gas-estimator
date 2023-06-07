@@ -22,11 +22,6 @@ class Node {
 
   requiredGas() {
     if (this.children === undefined) {
-      console.log(`Calculating gas for ${this.type} node`);
-      console.log({
-        cost: this.cost,
-        req: this.cost,
-      });
       return {
         cost: this.cost,
         req: this.cost,
