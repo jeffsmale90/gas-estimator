@@ -27,8 +27,8 @@ class Node {
         req: this.cost,
       };
     } else {
-      let totalReq = this.cost;
-      let totalCost = this.cost;
+      let totalReq = 0;
+      let totalCost = 0;
       for (const child of this.children) {
         const { req, cost } = child.requiredGas(true);
         totalReq = Math.max(totalCost + req, totalReq);
@@ -36,16 +36,18 @@ class Node {
         totalCost += cost;
       }
 
-      const req = applySixtyFloorths
-        ? Math.floor(totalReq / SIXTY_FOURTHS)
-        : totalReq;
+      let req = totalReq;
+      if (applySixtyFloorths) {
+        req = Math.floor(totalReq / SIXTY_FOURTHS);
+      }
+
       console.log(`Calculating gas for ${this.type} node`, {
         cost: totalCost,
         req,
       });
       return {
-        cost: totalCost,
-        req,
+        cost: totalCost + this.cost,
+        req: req + this.cost,
       };
     }
   }
