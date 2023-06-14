@@ -19,6 +19,9 @@ const rootData = JSON.parse(readFileSync("./tree.json"));
 const rootNode = nodeFromData(rootData);
 
 const minimumGas = rootNode.requiredGas();
+const gasLeft = rootNode.spendGas(minimumGas.minimum);
+
 console.log();
 console.log(`Total gas spent:      ${minimumGas.cost}`);
 console.log(`Minimum gas required: ${minimumGas.minimum}`);
+console.log(`Gas left over:        ${gasLeft}`);

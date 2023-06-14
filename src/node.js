@@ -2,7 +2,13 @@ const SIXTY_FOURTHS = 63 / 64;
 
 function nodeFromData(data) {
   const children = data.children?.map((child) => nodeFromData(child));
-  const node = new Node(data.type, data.cost, data.req, data.stipend, children);
+  const node = new Node(
+    data.name,
+    parseInt(data.cost),
+    parseInt(data.req),
+    parseInt(data.stipend),
+    children
+  );
 
   return node;
 }
@@ -22,6 +28,44 @@ class Node {
     if (children) {
       this.children = children;
     }
+  }
+
+  spendGas(gasLimit, isRealNode) {
+    if (this.minimum < this.cost) {
+      throw new Error(
+        `Minimum gas less than cost. Type: ${this.type}, Minimum: ${this.minimum}, Cost: ${this.cost}`
+      );
+    }
+    console.log(
+      `Spending gas for ${this.type}.\nLimit: ${gasLimit}, minimum: ${this.minimum} cost: ${this.cost}`
+    );
+    console.log();
+    if (gasLimit < this.minimum) {
+      throw new Error(`Gas limit: ${gasLimit} < minimum: ${this.minimum}`);
+    }
+    if (gasLimit < this.cost) {
+      throw new Error(`Gas limit: ${gasLimit} < cost: ${this.cost}`);
+    }
+    gasLimit -= this.cost;
+
+    if (this.stipend) {
+      gasLimit += this.stipend;
+    }
+    if (this.children && this.children.length > 0) {
+      const withheld = Math.floor(gasLimit / 64);
+      if (isRealNode) {
+        gasLimit -= withheld;
+      }
+      for (const child of this.children) {
+        gasLimit = child.spendGas(gasLimit, true);
+      }
+
+      if (isRealNode) {
+        gasLimit += withheld;
+      }
+    }
+
+    return gasLimit;
   }
 
   requiredGas(applySixtyFloorths) {
